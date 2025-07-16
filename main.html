@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Average Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Grade Average Calculator</h1>
+        
+        <div class="form-group">
+            <label for="total">Total Score:</label>
+            <input type="number" id="total" placeholder="Enter your total score">
+        </div>
+        
+        <div class="form-group">
+            <label for="num_subjects">Number of Subjects:</label>
+            <input type="number" id="num_subjects" placeholder="Enter number of subjects">
+        </div>
+        
+        <button onclick="calculateAverage()">Calculate Average</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateAverage() {
+            const total = document.getElementById('total').value;
+            const numSubjects = document.getElementById('num_subjects').value;
+            const resultDiv = document.getElementById('result');
+            
+            // Validate inputs
+            if (!total || !numSubjects) {
+                showResult('Please enter all required fields', false);
+                return;
+            }
+            
+            if (numSubjects <= 0) {
+                showResult('Number of subjects must be greater than zero', false);
+                return;
+            }
+            
+            // Build API URL
+            const apiUrl = `http://localhost:8000/calculate_average_grade?total=${total}&num_subjects=${numSubjects}`;
+            
+            // Send request to API
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server error occurred');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const message = `
+                        Average: ${data.bmi.toFixed(2)}<br>
+                        Result: ${data.message}
+                    `;
+                    showResult(message, true);
+                })
+                .catch(error => {
+                    showResult(error.message, false);
+                });
+        }
+        
+        function showResult(message, isSuccess) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = isSuccess ? 'success' : 'error';
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
